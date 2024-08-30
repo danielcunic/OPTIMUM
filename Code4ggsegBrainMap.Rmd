@@ -1,0 +1,96 @@
+---
+title: "Braindata"
+output: html_document
+date: "2024-07-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(tidyverse)
+library(dplyr)
+library(ggseg)
+library(ggplot2)
+library(tibble)
+
+library(conflicted)
+conflict_prefer(dplyr::filter)
+conflict_prefer(dplyr::lag)
+
+maineffects_IMINDEX = read.csv("C:/Users/Daniel Cunic/OneDrive/Documents/OPTIMUM/data/maineffects_IMINDEX.csv")
+maineffects_DMINDEX = read.csv("C:/Users/Daniel Cunic/OneDrive/Documents/OPTIMUM/data/maineffects_DMINDEX.csv")
+maineffects_AINDEX = read.csv("C:/Users/Daniel Cunic/OneDrive/Documents/OPTIMUM/data/maineffects_AINDEX.csv")
+maineffects_DTMTS4 = read.csv("C:/Users/Daniel Cunic/OneDrive/Documents/OPTIMUM/data/maineffects_DTMTS4.csv")
+maineffects_LINDEX = read.csv("C:/Users/Daniel Cunic/OneDrive/Documents/OPTIMUM/data/maineffects_LINDEX.csv")
+maineffects_VCINDEX = read.csv("C:/Users/Daniel Cunic/OneDrive/Documents/OPTIMUM/data/maineffects_VCINDEX.csv")
+
+##To turn unfiltered spreadsheets into ggseg friendly ones, effectsize = tstat*2/sqrt(samplesize)
+F_maineffects_DMINDEX <- maineffects_DMINDEX|>filter(adjusted_pValues<0.05)|>mutate(hemi=hemisphere, p=adjusted_pValues, region=roi, effectsize=tstat*2/sqrt(250))|>select(hemi, region, p, effectsize)
+
+##ggseg map for cortex; DM
+ggseg(.data = F_maineffects_DMINDEX,
+        colour = "black",
+mapping = aes(fill = effectsize), position = "stacked", na.rm=FALSE) +
+  scale_fill_gradient(low = "lavender",high="purple", limits = c(0.25, 0.6)) +
+  labs(title="Delayed Memory", fill="Effect Size")
+
+##ggseg map for cortex; L
+ggseg(.data = F_maineffects_LINDEX,
+        colour = "black",
+mapping = aes(fill = effectsize), position = "stacked", na.rm=FALSE) +
+  scale_fill_gradient(low = "lavender", high="purple", limits = c(0.25, 0.6)) +
+  labs(title="Language", fill="Effect Size") +
+  theme_void()
+
+##ggseg map for cortex; VC
+ggseg(.data = F_maineffects_VCINDEX,
+        colour = "black",
+mapping = aes(fill = effectsize), position = "stacked", na.rm=FALSE, hemisphere = "right", view = "lateral") +
+  scale_fill_gradient(low = "lavender", high="purple", limits = c(0.25, 0.6)) +
+  labs(title="Visual Cortex", fill="Effect Size") +
+  theme_void()
+
+##subcortical map; DM
+ggseg(.data = F_maineffects_DMINDEX, atlas = "aseg", mapping = aes(fill = effectsize), position = "dispersed", na.rm = TRUE, view = "coronal") +
+  scale_fill_gradient(low = "lavender",high = "purple",limits = c(0.25,0.6)) +
+  labs(title="Delayed Memory", fill = "Effect Size") +
+  theme_void()
+  
+##map for subcortical regions; L
+ggseg(.data = F_maineffects_LINDEX, atlas = "aseg", mapping = aes(fill = effectsize), position = "dispersed", na.rm = TRUE, adapt_scales = TRUE, view = "coronal") +
+  scale_fill_gradient(low = "lavender",high = "purple", limits = c(0.25,0.6)) +
+  labs(title="Language", fill = "Effect Size") +
+  theme_void() 
+
+##change t stat to effect size using peters code and then plot effect size using the filtered tables, make scales consistent, organize visually pleasing brains for poster
+
+ggseg(.data = F_maineffects_DMINDEX,
+      colour = "black",
+      mapping = aes(fill = effectsize), 
+      position = "stacked", 
+      na.rm=TRUE) +
+  scale_fill_gradient(low = "red",high="blue") +
+  labs(title="Delayed Memory", fill="Effect Size") +
+  theme_void()
+
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
