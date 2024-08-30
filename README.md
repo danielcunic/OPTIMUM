@@ -1,3 +1,3 @@
 # OPTIMUM
-Ggseg Brain Maps - Cortical and Subcortical
+Ggseg Brain Maps - Cortical and Subcortical;
 Longitudinal Analysis - LME
